@@ -8,6 +8,11 @@ compaction:
 # Native generate_image (replaces rice-opencode's viz plugin); models come from cpa-images.
 generate_image:
   enabled: true
+tui:
+  mouse: true
+display:
+  pinnedAgents: full
+  subagentLivePreview: true
 modelRoles:
   smol: cpa/gpt-6-luna:max
   advisor: cpa/gpt-6.1-sol:xhigh
