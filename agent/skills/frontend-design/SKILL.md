@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: "load this skill when doing any frontend related work or review."
+description: Frontend development or UI review; not for backend-only work.
 license: MIT
 compatibility: omp
 metadata:

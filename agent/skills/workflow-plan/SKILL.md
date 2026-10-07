@@ -1,6 +1,6 @@
 ---
 name: workflow-plan
-description: Use during PLAN mode to create, revise, validate, and hand off durable workplans using workplan_* tools. Do not load unless the user says "use workflows"
+description: Plan durable workplans with workplan_* tools; only when user says "use workflows".
 compatibility: omp
 metadata:
   domain: software-engineering

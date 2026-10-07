@@ -1,6 +1,6 @@
 ---
 name: git-commit
-description: Use when preparing Git commits; check repository convention first, prefer Conventional Commits, keep commits granular, and handle branch safety without blocking explicit user intent.
+description: Preparing Git commits; repo convention first, else Conventional Commits, granular.
 compatibility: omp
 metadata:
   domain: git

@@ -1,6 +1,6 @@
 ---
 name: workflow-execute
-description: Use after PLANNING has been completed, approved and a workplan exists. To execute an existing workplan through implementation, validation, and review. Do not load unless the user says "use workflows"
+description: Execute an approved workplan; only when user says "use workflows" after planning.
 compatibility: omp
 metadata:
   domain: software-engineering
