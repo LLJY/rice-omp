@@ -1,0 +1,14 @@
+# flareon: long-running agents. Overlay on agent/config.yml (arrays replace, so lists are complete).
+# Only these chat models are offered; every modelRoles entry in agent/config.yml is among them.
+enabledModels:
+  - cpa/claude-opus-5-5
+  - cpa/claude-sonnet-5-5
+  - cpa/claude-fable-5-1
+  - cpa/gpt-6-astra
+  - cpa/gpt-6.1-sol
+  - cpa/gpt-6-sol
+  - cpa/gpt-6-luna
+# Compact at the full capped window (models.yml); omp clamps thresholdPercent to 99.
+# Agents here usually compact on their own before reaching it.
+compaction:
+  thresholdPercent: 100

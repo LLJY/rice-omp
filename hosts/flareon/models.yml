@@ -1,0 +1,17 @@
+providers:
+  cpa:
+    modelOverrides:
+      claude-opus-5-5:
+        contextWindow: 512000
+      claude-sonnet-5-5:
+        contextWindow: 1000000
+      claude-fable-5-1:
+        contextWindow: 372000
+      gpt-6-astra:
+        contextWindow: 353000
+      gpt-6.1-sol:
+        contextWindow: 572000
+      gpt-6-sol:
+        contextWindow: 353000
+      gpt-6-luna:
+        contextWindow: 1000000
