@@ -20,7 +20,8 @@ type ModelRow = NonNullable<ProviderConfigInput["models"]>[number];
 const PROXY_URL = process.env.CPA_BASE_URL ?? "http://127.0.0.1:8317";
 const API_KEY_ENV = "CPA_KEY";
 
-// Both providers refresh together; share one /v1/models request per process.
+// Both providers refresh together; coalesce their concurrent /v1/models requests.
+// Only the in-flight request is shared: omp's model manager owns caching and refresh.
 let catalog: Promise<CatalogEntry[]> | undefined;
 
 interface CatalogEntry {
@@ -58,9 +59,8 @@ async function fetchCatalog(apiKey: string | undefined): Promise<CatalogEntry[]>
 }
 
 async function sharedCatalog(apiKey: string | undefined): Promise<CatalogEntry[]> {
-	catalog ??= fetchCatalog(apiKey).catch(error => {
+	catalog ??= fetchCatalog(apiKey).finally(() => {
 		catalog = undefined;
-		throw error;
 	});
 	return catalog;
 }

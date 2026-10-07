@@ -15,8 +15,7 @@
     },
     "hound": {
       "type": "stdio",
-      "command": "uvx",
-      "args": ["--from", "hound-mcp[all]==12.4.1", "hound"],
+      "command": "${HOME}/.omp/agent/mcp/hound/run.sh",
       "timeout": 120000
     },
     "context7": {
