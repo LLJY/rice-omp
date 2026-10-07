@@ -33,28 +33,22 @@ journalctl --user -u ompweb -f
    |---|---|---|
    | `memory.backend` | `mnemopi` (looks like memory is ON) | `off` |
    | `autolearn.enabled` / `autolearn.autoContinue` | on / on | `false` / `false` |
-   | `compaction.strategy` | `snapcompact` | key is legacy; see below |
+   | `compaction.strategy` | `snapcompact` | key is legacy and ignored; see below |
    | `retry.maxRetries` | `2` | `10` |
    | `retry.modelFallback` | off | `true` |
 
    Other fallbacks (`defaultThinkingLevel: high`, `hideThinkingBlock: false`, `textVerbosity: medium`, `tools.approvalMode: yolo`, mnemopi/mcp toggles) match omp 18.8.0.
 
-   rice-omp therefore pins these keys in `agent/config.yml` at omp's real defaults, so ompweb displays the truth.
+   rice-omp therefore pins memory, autolearn and retry in `agent/config.yml` at omp's real defaults, so ompweb displays the truth.
    - Recheck after upgrading ompweb: grep the built UI (`.next/static/chunks`) for `eW?.<key>??<fallback>`, and compare with `omp config get <key>`.
 
 2. **Compaction:** ompweb only knows the legacy `compaction.strategy`. It does not know `compaction.methodOrder`, which is what omp actually uses.
    - omp ignores `strategy` whenever `methodOrder` is set. Tested with `strategy: handoff | snapcompact | off`: the effective `methodOrder` stayed `[remote, handoff, soft, shake]`.
-   - The ompweb compaction dropdown is therefore display-only here. Change compaction in `agent/config.yml` (`methodOrder`).
-   - `strategy: handoff` is kept in the repo so the dropdown shows the method actually used locally.
+   - The ompweb compaction dropdown is therefore meaningless here; it shows `snapcompact` whatever omp uses. Change compaction in `agent/config.yml` (`methodOrder`).
+   - Pinning `strategy` for display does not stick: omp deletes the legacy key whenever it saves `config.yml`.
 
-3. **Writes** go straight to the live `~/.omp/agent/config.yml`. It sets only the keys you changed, then does an atomic rename; comments and other keys survive. omp's `/settings` also writes there.
+3. **Writes** target `~/.omp/agent/config.yml` (and `mcp.json`) by path without resolving symlinks, then atomically rename a temp file over it. rice-omp links those files into its checkout, so an ompweb save replaces the link with a plain file. It sets only the keys you changed and keeps the rest of the file.
 
 ## Keeping the repo the source of truth
 
-Edits in ompweb or omp `/settings` land in the live agent dir, not in rice-omp, and `./install.sh` replaces the live files with the repo's.
-
-When an owned file (`config.yml`, `mcp.json`, `APPEND_SYSTEM.md`) changed since the last install, `install.sh`:
-- saves it as `<file>.local-<timestamp>`;
-- prints a `diff -u` of what is being replaced.
-
-To keep a UI change, copy it into `agent/config.yml`, commit, then install.
+After saving settings in ompweb, re-run `./install.sh` in the rice-omp checkout. It copies the edited file into the checkout, so the change shows in `git diff`, and restores the link. If the repo copy also has uncommitted edits, it saves the live file as `<file>.local-<timestamp>` and prints the diff for a manual merge. omp's own `/settings` writes through the link and needs no extra step.

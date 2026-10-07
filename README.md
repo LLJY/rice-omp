@@ -2,16 +2,30 @@
 
 Personal [omp](https://github.com/can1357/oh-my-pi) setup, ported from `rice-opencode` and `good-goose`.
 
-`agent/` mirrors `~/.omp/agent/`. Everything inside it is self-contained; `mcp.json` launchers point at `${HOME}/.omp/agent`, and `install.sh <dir>` rewrites them for other agent dirs.
+`agent/` mirrors `~/.omp/agent/`. `install.sh` links its files into the agent dir, so the live config is this git checkout. `mcp.json` launchers point at `${HOME}/.omp/agent`; `install.sh <dir>` writes a rewritten copy for other agent dirs.
 
 ## Install
 
 ```sh
-./install.sh            # copies agent/* into ~/.omp/agent (backs up clobbered files as *.pre-rice)
+./install.sh            # link agent/* into ~/.omp/agent (the machine's original files become *.pre-rice)
 ./install.sh <dir>      # or into another agent dir, e.g. ~/.omp/profiles/work/agent
 ```
 
-Use `install.sh` for upgrades too: it also retires a stale `models.yml` (a static `cpa` provider would shadow discovery) and repoints MCP launchers for non-default dirs. Owned files changed outside the repo since the last install (omp `/settings`, ompweb, hand edits) are saved as `<file>.local-<timestamp>` and their diff is printed before replacement. Hand-copying `agent/`'s contents is equivalent only for a fresh `~/.omp/agent`. `config.yml` changes apply live (omp watches it); run `/mcp reload` for `mcp.json`; restart omp only after changing `extensions/`.
+Runtime state (`agent.db`, sessions, `.env`, `web-service.env`) stays in `~/.omp/agent` and is never touched. The links are absolute: re-run `install.sh` after moving the checkout. It also retires a stale `models.yml` (a static `cpa` provider would shadow discovery).
+
+### Syncing between machines
+
+The repo is the config. Sync it with plain git; push from whichever machine is the source of truth at the time:
+
+```sh
+git pull     # other machines' changes apply live
+git diff     # settings changed through omp on this machine
+git commit -am '...' && git push
+```
+
+- `config.yml` changes apply live (omp watches it), `mcp.json` needs `/mcp reload`, and `extensions/` needs an omp restart.
+- omp's `/settings` writes through the `config.yml` link. It rewrites the whole file in its own format (block lists, no comments, no final newline), so `config.yml` is kept in that format and stays comment-free; rationale lives in this README.
+- ompweb's settings and MCP editors, and omp's `/mcp add`, replace the `config.yml`/`mcp.json` link with a plain file. Re-run `./install.sh`: it copies the edit into the checkout (review with `git diff`) and restores the link. If that file also has uncommitted repo edits, it saves the live copy as `<file>.local-<timestamp>` and prints the diff instead.
 
 Runtime prerequisites: `bun` (workflow MCP), `go` 1.25+ (researcher-mcp, built on first launch), `uvx` (hound; its launcher installs patchright Chromium on first run), and CLIProxyAPI on `127.0.0.1:8317` with `CPA_KEY` set.
 
@@ -40,7 +54,7 @@ It binds to loopback; set `OMP_WEB_PASSWORD` before exposing it beyond localhost
 | Path | What |
 |---|---|
 | `agent/APPEND_SYSTEM.md` | Web-research and agent routing rules appended to the default system prompt |
-| `agent/config.yml` | `modelRoles`: `review`, `plan-check`, `research`, `proofread` role aliases used by the agents; `web: web/exa`; `disabledProviders: [opencode]` so only native MCP/skill config loads; `compaction.methodOrder: [remote, handoff, soft, shake]` (server-side for GPT, written summaries otherwise; no snapcompact); `generate_image.enabled` (off by default in omp); `display.pinnedAgents: full` and `display.subagentLivePreview`. `tui.mouse` stays at omp's default (off): capturing the mouse takes over terminal wheel scrolling |
+| `agent/config.yml` | `modelRoles`: `review`, `plan-check`, `research`, `proofread` role aliases used by the agents; `web: web/exa`; `disabledProviders: [opencode]` so only native MCP/skill config loads; `compaction.methodOrder: [remote, handoff, soft, shake]` (server-side for GPT, written summaries otherwise; snapcompact deliberately excluded); `memory`, `autolearn`, `retry` pinned at omp's defaults only so ompweb displays them correctly (see [docs/ompweb.md](docs/ompweb.md)); `generate_image.enabled` (off by default in omp; replaces rice-opencode's viz plugin); `display.pinnedAgents: full` and `display.subagentLivePreview`. `tui.mouse` stays at omp's default (off): capturing the mouse takes over terminal wheel scrolling |
 | `agent/extensions/cliproxyapi.ts` | Discovers CLIProxyAPI models from `/v1/models` (omp caches 24 h; `omp models refresh cpa` or `/models` refresh forces it). `cpa/*`: every chat model over Codex Responses WebSocket (`/backend-api/codex/responses`); `cpa-images/*`: `gpt-image-*` for `generate_image`. Limits and thinking levels come from omp's catalog. Models CPA reports as `owned_by: openai` get remote compaction V2 (server-side, via Codex OAuth); Claude models fall back to omp's local methods because CPA's Claude route cannot compact. Env: `CPA_KEY` (required), `CPA_BASE_URL` (default `http://127.0.0.1:8317`); `PI_CODEX_WEBSOCKET=0` forces HTTP SSE on the same endpoint |
 | `agent/mcp.json` | `workflow`, `researcher-mcp`, `hound`, `context7`, `deepwiki` |
 | `agent/agents/` | `plan-checker`, `researcher`, `document-proofreader` (verbatim rice-opencode prompts, omp frontmatter); `reviewer` (omp's bundled reviewer + architecture/code-smell pillars from `code-checker`) |

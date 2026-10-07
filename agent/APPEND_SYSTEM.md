@@ -9,7 +9,7 @@
 - `plan-checker` - give it a durable workplan or markdown file and it will roast it against your codebase realities, always use to ensure plan is sound before execution.
 - `document-proofreader` - academic proofreading and argument review of documents; read-only, returns a structured report.
 - `task` — write implementation slices, you may use them in parallel, but scope work according to dependency.
-- `reviewer` — post-change adversarial correctness, architecture, and code-smell review, recommended once every large wave (several slices) of tasks are completed as agents WILL make mistakes.
+- `reviewer` — post-change adversarial correctness, architecture, and code-smell review, recommended once large, cross-dependent code changes are made, as agents WILL make mistakes.
 - `sonic` - do not invoke unless user asks for it, or the work is strictly mechanical.
 
 Keep delegated tasks small and scoped. Plan delegation based on difficulty. (i.e. don't plan check a straightforward inconsequential change). User instructed delegation takes precedence.
