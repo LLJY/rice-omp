@@ -11,21 +11,23 @@ Personal [omp](https://github.com/can1357/oh-my-pi) setup, ported from `rice-ope
 ./install.sh <dir>      # or into another agent dir, e.g. ~/.omp/profiles/work/agent
 ```
 
-Runtime state (`agent.db`, sessions, `.env`, `web-service.env`) stays in `~/.omp/agent` and is never touched. The links are absolute: re-run `install.sh` after moving the checkout. It also retires a stale `models.yml` (a static `cpa` provider would shadow discovery).
+Runtime state (`agent.db`, sessions, `.env`, `web-service.env`) stays in `~/.omp/agent` and is never touched. The links are absolute: re-run `install.sh` after moving the checkout. It refuses to install into the checkout itself, and retires a stale `models.yml` (a static `cpa` provider would shadow discovery).
 
 ### Syncing between machines
 
 The repo is the config. Sync it with plain git; push from whichever machine is the source of truth at the time:
 
 ```sh
-git pull     # other machines' changes apply live
-git diff     # settings changed through omp on this machine
+./install.sh # fold back edits from tools that broke a link (below); no-op otherwise
+git diff     # settings changed on this machine
 git commit -am '...' && git push
+git pull     # other machines' changes apply live
 ```
 
 - `config.yml` changes apply live (omp watches it), `mcp.json` needs `/mcp reload`, and `extensions/` needs an omp restart.
 - omp's `/settings` writes through the `config.yml` link. It rewrites the whole file in its own format (block lists, no comments, no final newline), so `config.yml` is kept in that format and stays comment-free; rationale lives in this README.
-- ompweb's settings and MCP editors, and omp's `/mcp add`, replace the `config.yml`/`mcp.json` link with a plain file. Re-run `./install.sh`: it copies the edit into the checkout (review with `git diff`) and restores the link. If that file also has uncommitted repo edits, it saves the live copy as `<file>.local-<timestamp>` and prints the diff instead.
+- ompweb's settings page and `/mcp add --scope user` replace the `config.yml`/`mcp.json` link with a plain file. (ompweb's MCP editor and plain `/mcp add` write the project's `.omp/mcp.json`, not the synced one.) `./install.sh` three-way merges such an edit into the checkout, using the repo version from its previous run as the base, so commits pulled in the meantime survive, then restores the link. On a conflict, or with no base yet, it leaves the checkout alone, keeps the live file as `<file>.local-<timestamp>` and prints the diff.
+- Keep secrets out of tracked files: `/mcp add --token` writes a literal `Authorization: Bearer …` header. Put the token in `~/.omp/agent/.env` and reference it as `"!printf %s \"$VAR\""` (as `context7` does); `install.sh` warns when an adopted file contains a literal credential.
 
 Runtime prerequisites: `bun` (workflow MCP), `go` 1.25+ (researcher-mcp, built on first launch), `uvx` (hound; its launcher installs patchright Chromium on first run), and CLIProxyAPI on `127.0.0.1:8317` with `CPA_KEY` set.
 

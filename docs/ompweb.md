@@ -47,8 +47,8 @@ journalctl --user -u ompweb -f
    - The ompweb compaction dropdown is therefore meaningless here; it shows `snapcompact` whatever omp uses. Change compaction in `agent/config.yml` (`methodOrder`).
    - Pinning `strategy` for display does not stick: omp deletes the legacy key whenever it saves `config.yml`.
 
-3. **Writes** target `~/.omp/agent/config.yml` (and `mcp.json`) by path without resolving symlinks, then atomically rename a temp file over it. rice-omp links those files into its checkout, so an ompweb save replaces the link with a plain file. It sets only the keys you changed and keeps the rest of the file.
+3. **Settings writes** target `~/.omp/agent/config.yml` by path without resolving symlinks, then atomically rename a temp file over it. rice-omp links that file into its checkout, so an ompweb settings save replaces the link with a plain file. It sets only the keys you changed and keeps the rest of the file. ompweb's **MCP editor** is project-scoped: it writes `<project>/.omp/mcp.json`, not the synced user `mcp.json` (`lib/omp/mcp-config.ts`).
 
 ## Keeping the repo the source of truth
 
-After saving settings in ompweb, re-run `./install.sh` in the rice-omp checkout. It copies the edited file into the checkout, so the change shows in `git diff`, and restores the link. If the repo copy also has uncommitted edits, it saves the live file as `<file>.local-<timestamp>` and prints the diff for a manual merge. omp's own `/settings` writes through the link and needs no extra step.
+After saving settings in ompweb, re-run `./install.sh` in the rice-omp checkout. It three-way merges the edited file into the checkout, using the repo version from its previous run as the base, so the change shows in `git diff` and commits pulled in the meantime are kept. It then restores the link. On a conflict it leaves the checkout alone, keeps the live file as `<file>.local-<timestamp>` and prints the diff for a manual merge. omp's own `/settings` writes through the link and needs no extra step.
