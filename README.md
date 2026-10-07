@@ -11,7 +11,7 @@ Personal [omp](https://github.com/can1357/oh-my-pi) setup, ported from `rice-ope
 ./install.sh <dir>      # or into another agent dir, e.g. ~/.omp/profiles/work/agent
 ```
 
-Use `install.sh` for upgrades too: it also retires a stale `models.yml` (a static `cpa` provider would shadow discovery) and repoints MCP launchers for non-default dirs. Hand-copying `agent/`'s contents is equivalent only for a fresh `~/.omp/agent`. Restart omp afterwards.
+Use `install.sh` for upgrades too: it also retires a stale `models.yml` (a static `cpa` provider would shadow discovery) and repoints MCP launchers for non-default dirs. Owned files changed outside the repo since the last install (omp `/settings`, ompweb, hand edits) are saved as `<file>.local-<timestamp>` and their diff is printed before replacement. Hand-copying `agent/`'s contents is equivalent only for a fresh `~/.omp/agent`. Restart omp afterwards.
 
 Runtime prerequisites: `bun` (workflow MCP), `go` 1.25+ (researcher-mcp, built on first launch), `uvx` (hound; its launcher installs patchright Chromium on first run), and CLIProxyAPI on `127.0.0.1:8317` with `CPA_KEY` set.
 
@@ -33,7 +33,7 @@ ompweb-systemd install          # user service on http://127.0.0.1:30177, starts
 journalctl --user -u ompweb -f  # logs; port/host/password live in ~/.omp/agent/web-service.env
 ```
 
-It binds to loopback; set `OMP_WEB_PASSWORD` before exposing it beyond localhost.
+It binds to loopback; set `OMP_WEB_PASSWORD` before exposing it beyond localhost. ompweb shows its own fallbacks for settings absent from `config.yml` and only knows the legacy compaction key: see [docs/ompweb.md](docs/ompweb.md) for what rice-omp pins and the server checklist.
 
 ## Contents
 

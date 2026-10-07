@@ -5,6 +5,19 @@ disabledProviders:
 # shake: no-model fallback. snapcompact (bitmap archive) is left out on purpose.
 compaction:
   methodOrder: [remote, handoff, soft, shake]
+  # Display-only for ompweb, which only knows the legacy key (and shows `snapcompact` when it is
+  # absent). omp ignores `strategy` whenever `methodOrder` is set.
+  strategy: handoff
+# The following equal omp's defaults; they are pinned because ompweb shows its own fallbacks
+# (mnemopi memory, autolearn on, 2 retries without model fallback) for keys missing here.
+memory:
+  backend: off
+autolearn:
+  enabled: false
+  autoContinue: false
+retry:
+  maxRetries: 10
+  modelFallback: true
 # Native generate_image (replaces rice-opencode's viz plugin); models come from cpa-images.
 generate_image:
   enabled: true
