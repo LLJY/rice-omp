@@ -29,7 +29,7 @@ Optional env (shell or `~/.omp/agent/.env`):
 |---|---|
 | `agent/APPEND_SYSTEM.md` | Web-research and agent routing rules appended to the default system prompt |
 | `agent/config.yml` | `modelRoles`: `review`, `plan-check`, `research`, `proofread` role aliases used by the agents; `web: web/exa`; `disabledProviders: [opencode]` so only native MCP/skill config loads |
-| `agent/models.yml` | `cpa`: every proxy chat model over Codex Responses WebSocket (`/backend-api/codex/responses`); `cpa-images`: the `gpt-image-*` models. The model list is static because CLIProxyAPI's `/v1/models` gives omp no way to pick this API; add new proxy model ids by hand. `PI_CODEX_WEBSOCKET=0` forces HTTP SSE on the same endpoint |
+| `agent/extensions/cliproxyapi.ts` | Discovers CLIProxyAPI models from `/v1/models` on startup (24 h cache; `omp models refresh cpa` forces it). `cpa/*`: every chat model over Codex Responses WebSocket (`/backend-api/codex/responses`); `cpa-images/*`: `gpt-image-*` for `generate_image`. Limits and thinking levels come from omp's catalog. Env: `CPA_KEY` (required), `CPA_BASE_URL` (default `http://127.0.0.1:8317`); `PI_CODEX_WEBSOCKET=0` forces HTTP SSE on the same endpoint |
 | `agent/mcp.json` | `workflow`, `researcher-mcp`, `hound`, `context7`, `deepwiki` |
 | `agent/agents/` | `plan-checker`, `researcher`, `document-proofreader` (verbatim rice-opencode prompts, omp frontmatter); `reviewer` (omp's bundled reviewer + architecture/code-smell pillars from `code-checker`) |
 | `agent/skills/` | `workflow-plan`, `workflow-execute`, `git-commit`, `frontend-design` |
