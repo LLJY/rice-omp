@@ -57,10 +57,21 @@ Exa is not an MCP entry: omp folds Exa MCP servers into its native `web_search`,
 
 `build`, `swe`, `chat`, `plan` → main session / plan mode · `code-writer` → `task` · `explore` → `scout` · `code-checker` → merged into `reviewer` · opencode-mem, background-agents, notifier, auth plugins, viz → native memory, async tasks, providers, `generate_image`.
 
+## Moving OpenCode sessions over
+
+`tools/opencode-import/` converts OpenCode (1.18.x) sessions into native omp sessions, subagent sessions included, so `omp --resume`, `history://` and `agent://` work on them. It reads `opencode.db` read-only and records each import in `.opencode-import.json` in the sessions dir; re-runs skip unchanged sessions and never overwrite ones you've continued in omp (`--force` overrides). See [its README](tools/opencode-import/README.md).
+
+```sh
+cd tools/opencode-import
+bun src/cli.ts --since 90d --dry-run   # plan only
+bun src/cli.ts --since 90d             # import into ~/.omp/agent/sessions
+```
+
 ## Tests
 
 ```sh
 cd agent/mcp/workflow && bun install && bun test
+cd tools/opencode-import && bun test
 ```
 
 ## License

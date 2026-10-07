@@ -1,0 +1,10 @@
+{
+  "name": "rice-omp-opencode-import",
+  "private": true,
+  "type": "module",
+  "description": "Import OpenCode (SQLite) sessions, including subagent sessions, into native omp sessions",
+  "scripts": {
+    "test": "bun test",
+    "import": "./src/cli.ts"
+  }
+}
