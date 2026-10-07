@@ -12,6 +12,8 @@ Personal [omp](https://github.com/can1357/oh-my-pi) setup, ported from `rice-ope
 ./install.sh <dir>         # or into another agent dir, e.g. ~/.omp/profiles/work/agent
 ```
 
+omp itself: `curl -fsSL https://omp.sh/install | sh` (official script; installs through bun when present).
+
 Runtime state (`agent.db`, sessions, `web-service.env`) stays in `~/.omp/agent` and is never touched; `.env` only ever gets the one managed host-overlay line below. The links are absolute: re-run `install.sh` after moving the checkout. It refuses to install into the checkout itself, and retires the old static `cpa` `models.yml` from early rice-omp (it would shadow discovery); any other `models.yml` is left alone.
 
 ### Per-machine overrides (`hosts/`)
@@ -41,7 +43,7 @@ git pull     # other machines' changes apply live
 - ompweb's settings page and `/mcp add --scope user` replace the `config.yml`/`mcp.json` link with a plain file. (ompweb's MCP editor and plain `/mcp add` write the project's `.omp/mcp.json`, not the synced one.) `./install.sh` three-way merges such an edit into the checkout, using the repo version from its previous run as the base, so commits pulled in the meantime survive, then restores the link. On a conflict, or with no base yet, it leaves the checkout alone, keeps the live file as `<file>.local-<timestamp>` and prints the diff.
 - Keep secrets out of tracked files: `/mcp add --token` writes a literal `Authorization: Bearer …` header. Put the token in `~/.omp/agent/.env` and reference it as `"!printf %s \"$VAR\""` (as `context7` does); `install.sh` warns when an adopted file contains a literal credential.
 
-Runtime prerequisites: `bun` (workflow MCP), `go` 1.25+ (researcher-mcp, built on first launch), `uvx` (hound; its launcher installs patchright Chromium on first run), and CLIProxyAPI on `127.0.0.1:8317` with `CPA_KEY` set.
+Runtime prerequisites: `bun` ≥ 1.4 (workflow MCP; its `bun.lock` format is unreadable by 1.3.x, so run `bun upgrade`), `go` 1.25+ (researcher-mcp, built on first launch), `uvx` (hound; its launcher installs patchright Chromium on first run), and CLIProxyAPI on `127.0.0.1:8317` with `CPA_KEY` set.
 
 Optional env (shell or `~/.omp/agent/.env`):
 
