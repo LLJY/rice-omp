@@ -11,7 +11,7 @@ Personal [omp](https://github.com/can1357/oh-my-pi) setup, ported from `rice-ope
 ./install.sh <dir>      # or into another agent dir, e.g. ~/.omp/profiles/work/agent
 ```
 
-Use `install.sh` for upgrades too: it also retires a stale `models.yml` (a static `cpa` provider would shadow discovery) and repoints MCP launchers for non-default dirs. Owned files changed outside the repo since the last install (omp `/settings`, ompweb, hand edits) are saved as `<file>.local-<timestamp>` and their diff is printed before replacement. Hand-copying `agent/`'s contents is equivalent only for a fresh `~/.omp/agent`. Restart omp afterwards.
+Use `install.sh` for upgrades too: it also retires a stale `models.yml` (a static `cpa` provider would shadow discovery) and repoints MCP launchers for non-default dirs. Owned files changed outside the repo since the last install (omp `/settings`, ompweb, hand edits) are saved as `<file>.local-<timestamp>` and their diff is printed before replacement. Hand-copying `agent/`'s contents is equivalent only for a fresh `~/.omp/agent`. `config.yml` changes apply live (omp watches it); run `/mcp reload` for `mcp.json`; restart omp only after changing `extensions/`.
 
 Runtime prerequisites: `bun` (workflow MCP), `go` 1.25+ (researcher-mcp, built on first launch), `uvx` (hound; its launcher installs patchright Chromium on first run), and CLIProxyAPI on `127.0.0.1:8317` with `CPA_KEY` set.
 
