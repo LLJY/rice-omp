@@ -21,7 +21,7 @@ journalctl --user -u ompweb -f
 ### Server checklist
 
 - **Run without a login session:** `loginctl enable-linger "$USER"`.
-- **Expose beyond loopback:** set `OMP_WEB_HOSTNAME=0.0.0.0` *and* `OMP_WEB_PASSWORD` in `web-service.env`. Serve it over HTTPS (reverse proxy) or a VPN such as Tailscale; never plain HTTP with a password.
+- **Expose beyond loopback:** set `OMP_WEB_PASSWORD` and `OMP_WEB_HOSTNAME` in `web-service.env`. `0.0.0.0` binds IPv4 only; `"::"` binds IPv4 and IPv6. Then restrict the port in the firewall to trusted sources. flareon allows `30177/tcp` only from the LAN (`192.168.10.0/24`, its IPv6 /64, `fc00::/7`, `fe80::/10` on the LAN NIC) and WireGuard (`10.100.0.0/24`, `fd08:4711::/64` on `wg0`). Plain HTTP sends the password and session cookie unencrypted, so outside a VPN put HTTPS in front.
 - **Pin the version:** set `OMP_WEB_DISABLE_AUTOUPDATE=1` so in-app updates don't drift from the pinned version.
 - **Before first use:** install rice-omp (`./install.sh`). ompweb only reads the agent dir and adds nothing of its own.
 
