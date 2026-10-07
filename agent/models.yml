@@ -1,0 +1,7 @@
+providers:
+  cpa:
+    baseUrl: http://127.0.0.1:8317/v1
+    api: openai-completions
+    apiKey: CPA_KEY
+    discovery:
+       type: proxy

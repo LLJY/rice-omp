@@ -1,0 +1,28 @@
+setupVersion: 2
+disabledProviders:
+  - opencode
+modelRoles:
+  smol: cpa/gpt-6-luna:max
+  advisor: cpa/gpt-6.1-sol:xhigh
+  judge: cpa/gpt-6.1-sol:xhigh
+  task: cpa/claude-sonnet-5-5:high
+  default: cpa/claude-opus-5-5:high
+  review: cpa/gpt-6.1-sol:xhigh
+  plan-check: cpa/gpt-6.1-sol:xhigh
+  research: cpa/gpt-6.1-sol:xhigh
+  proofread: cpa/gpt-6.1-sol:xhigh
+  web: web/exa
+modelPresets:
+  Default:
+    modelRoles:
+      smol: cpa/gpt-6-luna:max
+      default: cpa/claude-opus-5-5:high
+      advisor: cpa/gpt-6.1-sol:xhigh
+      judge: cpa/gpt-6.1-sol:xhigh
+      task: cpa/claude-sonnet-5-5:high
+      review: cpa/gpt-6.1-sol:xhigh
+      plan-check: cpa/gpt-6.1-sol:xhigh
+      research: cpa/gpt-6.1-sol:xhigh
+      proofread: cpa/gpt-6.1-sol:xhigh
+      web: web/exa
+    defaultThinkingLevel: high
