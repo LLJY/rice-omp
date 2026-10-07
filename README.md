@@ -7,11 +7,23 @@ Personal [omp](https://github.com/can1357/oh-my-pi) setup, ported from `rice-ope
 ## Install
 
 ```sh
-./install.sh            # link agent/* into ~/.omp/agent (the machine's original files become *.pre-rice)
-./install.sh <dir>      # or into another agent dir, e.g. ~/.omp/profiles/work/agent
+./install.sh               # link agent/* into ~/.omp/agent (the machine's original files become *.pre-rice)
+./install.sh --host NAME   # also layer hosts/NAME/ for this machine (remembered for later runs)
+./install.sh <dir>         # or into another agent dir, e.g. ~/.omp/profiles/work/agent
 ```
 
-Runtime state (`agent.db`, sessions, `.env`, `web-service.env`) stays in `~/.omp/agent` and is never touched. The links are absolute: re-run `install.sh` after moving the checkout. It refuses to install into the checkout itself, and retires a stale `models.yml` (a static `cpa` provider would shadow discovery).
+Runtime state (`agent.db`, sessions, `web-service.env`) stays in `~/.omp/agent` and is never touched; `.env` only ever gets the one managed host-overlay line below. The links are absolute: re-run `install.sh` after moving the checkout. It refuses to install into the checkout itself, and retires the old static `cpa` `models.yml` from early rice-omp (it would shadow discovery); any other `models.yml` is left alone.
+
+### Per-machine overrides (`hosts/`)
+
+Settings that only one machine should have (e.g. the server running weeks-long agents) live in `hosts/<name>/`, applied with `./install.sh --host <name>`:
+
+| File | Applied as | Typical use |
+|---|---|---|
+| `hosts/<name>/models.yml` | linked as `~/.omp/agent/models.yml` | per-model `modelOverrides` under `providers.cpa`: `contextWindow` caps (omp compacts relative to the cap), `cost`, `compactionModel` |
+| `hosts/<name>/config.yml` | omp config overlay via a managed `PI_CONFIG_FILES=` line in `~/.omp/agent/.env` | `enabledModels` (which chat models `/model` and Ctrl+P offer), role or compaction overrides |
+
+The overlay sits above the shared `config.yml`, and arrays replace rather than merge, so give its `enabledModels` the complete list. Settings saved from omp's `/settings` still go to the shared `config.yml`. ompweb reads only the shared file, so it doesn't show overlay values. ompweb's model editor saves `models.yml` like any other detached edit, and `./install.sh` folds it back into `hosts/<name>/models.yml`. `--no-host` removes the layer.
 
 ### Syncing between machines
 
