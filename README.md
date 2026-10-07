@@ -13,7 +13,7 @@ Personal [omp](https://github.com/can1357/oh-my-pi) setup, ported from `rice-ope
 
 Copying `agent/`'s contents into `~/.omp/agent/` by hand is equivalent. Restart omp afterwards.
 
-Runtime prerequisites: `bun` (workflow MCP), `go` 1.25+ (researcher-mcp, built on first launch), `uvx` (hound), and the local OpenAI-compatible proxy on `127.0.0.1:8317` with `CPA_KEY` set (the `cpa` provider in `models.yml`).
+Runtime prerequisites: `bun` (workflow MCP), `go` 1.25+ (researcher-mcp, built on first launch), `uvx` (hound), and CLIProxyAPI on `127.0.0.1:8317` with `CPA_KEY` set.
 
 Optional env (shell or `~/.omp/agent/.env`):
 
@@ -29,7 +29,7 @@ Optional env (shell or `~/.omp/agent/.env`):
 |---|---|
 | `agent/APPEND_SYSTEM.md` | Web-research and agent routing rules appended to the default system prompt |
 | `agent/config.yml` | `modelRoles`: `review`, `plan-check`, `research`, `proofread` role aliases used by the agents; `web: web/exa`; `disabledProviders: [opencode]` so only native MCP/skill config loads |
-| `agent/models.yml` | `cpa` provider (local proxy; key read from env `CPA_KEY`) |
+| `agent/models.yml` | `cpa`: the routed models (opus, sonnet, luna, sol) over Codex Responses WebSocket via CLIProxyAPI's `/backend-api/codex/responses`; `cpa-http`: every other proxy model, discovered via `/v1/models` over chat completions |
 | `agent/mcp.json` | `workflow`, `researcher-mcp`, `hound`, `context7`, `deepwiki` |
 | `agent/agents/` | `plan-checker`, `researcher`, `document-proofreader` (verbatim rice-opencode prompts, omp frontmatter); `reviewer` (omp's bundled reviewer + architecture/code-smell pillars from `code-checker`) |
 | `agent/skills/` | `workflow-plan`, `workflow-execute`, `git-commit`, `frontend-design` |

@@ -1,7 +1,31 @@
 providers:
+  # Routed models: Codex Responses over WebSocket via CLIProxyAPI's /backend-api/codex/responses.
+  # Later turns send previous_response_id + only the new input. Role selectors in config.yml use these.
   cpa:
+    baseUrl: http://127.0.0.1:8317/backend-api
+    api: openai-codex-responses
+    apiKey: CPA_KEY
+    models:
+      - id: claude-opus-5-5
+        reasoning: true
+        input: [text, image]
+        preferWebsockets: true
+      - id: claude-sonnet-5-5
+        reasoning: true
+        input: [text, image]
+        preferWebsockets: true
+      - id: gpt-6-luna
+        reasoning: true
+        input: [text, image]
+        preferWebsockets: true
+      - id: gpt-6.1-sol
+        reasoning: true
+        input: [text, image]
+        preferWebsockets: true
+  # Everything else the proxy serves, discovered from /v1/models over chat completions.
+  cpa-http:
     baseUrl: http://127.0.0.1:8317/v1
     api: openai-completions
     apiKey: CPA_KEY
     discovery:
-       type: proxy
+      type: proxy
