@@ -1,6 +1,10 @@
 setupVersion: 2
 disabledProviders:
   - opencode
+# remote: server-side compaction (GPT models via CPA). handoff/soft: written LLM summaries.
+# shake: no-model fallback. snapcompact (bitmap archive) is left out on purpose.
+compaction:
+  methodOrder: [remote, handoff, soft, shake]
 modelRoles:
   smol: cpa/gpt-6-luna:max
   advisor: cpa/gpt-6.1-sol:xhigh
