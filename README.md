@@ -49,3 +49,7 @@ Exa is not an MCP entry: omp folds Exa MCP servers into its native `web_search`,
 ```sh
 cd agent/mcp/workflow && bun install && bun test
 ```
+
+## License
+
+GPL-2.0 (`LICENSE.md`). Vendored `agent/mcp/researcher-mcp/src` remains MIT (its own `LICENSE`).
