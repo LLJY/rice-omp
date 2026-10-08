@@ -12,3 +12,5 @@ enabledModels:
 # Agents here usually compact on their own before reaching it.
 compaction:
   thresholdPercent: 100
+# Set from ompweb on flareon (2026-10-08): default reasoning effort for new sessions.
+defaultThinkingLevel: xhigh
