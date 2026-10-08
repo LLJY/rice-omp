@@ -45,3 +45,5 @@ modelPresets:
       proofread: cpa/gpt-6.1-sol:xhigh
       web: web/exa
     defaultThinkingLevel: high
+dev:
+  autoqaConsent: granted

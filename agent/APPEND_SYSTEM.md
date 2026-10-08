@@ -24,7 +24,7 @@ When an `async-result` arrives:
 - If the result predates instructions you sent the agent, check it against them and send a follow-up if needed; do not discard it.
 
 When to end the turn and when to keep working:
-- When you have nothing useful to do until results arrive, end your turn right after spawning (a short note of what is running is enough). Do not call `wait`; each `async-result` wakes you with a new turn.
+- When you have nothing useful to do until results arrive, end your turn right after spawning (a short note of what is running is enough). Do not call `wait`; each `async-result` wakes you with a new turn. This rule supersedes the `wait` tool's own guidance ("wait only when blocked with nothing else to do").
 - Keep working instead when there is independent work: other slices, reading or planning for the next phase, or verifying earlier work.
 - Never poll (`read proc://`, sleeps, repeated status checks) while jobs run; results are delivered automatically.
 - A user message does not stop running jobs. Answer the user, say which jobs are still running, then keep working or end the turn. Their results still arrive as `async-result`.
