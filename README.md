@@ -32,11 +32,13 @@ The overlay sits above the shared `config.yml`, and arrays replace rather than m
 The repo is the config. Sync it with plain git; push from whichever machine is the source of truth at the time:
 
 ```sh
-./install.sh # fold back edits from tools that broke a link (below); no-op otherwise
-git diff     # settings changed on this machine
-git commit -am '...' && git push
-git pull     # other machines' changes apply live
+./install.sh                       # fold back edits from tools that broke a link (below); no-op otherwise
+git diff                           # settings changed on this machine
+git add <files> && git commit && git push
+git pull --ff-only && ./install.sh # on the other machines: apply, and refresh install.sh's merge base
 ```
+
+Re-run `./install.sh` after every pull: it keeps the merge base current, so a later ompweb edit merges instead of conflicting. [`AGENTS.md`](AGENTS.md) has the full change procedure for agents working on this repo.
 
 - `config.yml` changes apply live (omp watches it), `mcp.json` needs `/mcp reload`, and `extensions/` needs an omp restart.
 - omp's `/settings` writes through the `config.yml` link. It rewrites the whole file in its own format (block lists, no comments, no final newline), so `config.yml` is kept in that format and stays comment-free; rationale lives in this README.
