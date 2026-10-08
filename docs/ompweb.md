@@ -1,14 +1,29 @@
 # ompweb with rice-omp
 
 [ompweb](https://github.com/kahme247/ompweb) (third-party, MIT) is a browser UI over the same omp agent dir
-(`~/.omp/agent`): sessions, `config.yml`, `mcp.json`. Verified against ompweb 0.5.1 and omp 18.8.0.
+(`~/.omp/agent`): sessions, `config.yml`, `mcp.json`. We run the fork [LLJY/ompweb](https://github.com/LLJY/ompweb),
+branch `rice`: upstream `main` plus our patches. Verified against omp 18.8.1.
+
+## Why the fork
+
+- **Slow `get_state` aborted runs.** Upstream resets a session whose `get_state` reply takes over 5 s, which aborts the
+  run (UI: "Generation stopped by user"). omp answers in milliseconds, but ompweb parses session files synchronously:
+  a phone tab waking on a 400 MB session blocked the server for ~5 s on flareon. The fork waits 60 s
+  (`OMP_WEB_GET_STATE_TIMEOUT_MS`) and never resets a running session that is still streaming.
+- **Upstream `main`, not 0.5.1**, for the opt-in auto-resume after a restart and the session-ownership fix
+  (kahme247/ompweb#202).
 
 ## Install (no root)
 
 ```sh
-npm install -g --prefix ~/.local @kahme247/ompweb@0.5.1   # ~/.local/bin must be on PATH
-ompweb-systemd install                                     # user unit, starts at login, restarts on crash
-journalctl --user -u ompweb -f
+git clone -b rice git@github.com:LLJY/ompweb.git ~/Projects/ompweb && cd ~/Projects/ompweb
+git remote add upstream https://github.com/kahme247/ompweb.git
+npm ci && npm pkg set version="0.5.1-rice.$(git rev-parse --short HEAD)"   # version label shown in the UI
+npm pack --pack-destination /tmp && git checkout package.json              # prepack runs the build
+systemctl --user stop ompweb                                               # kills its omp sessions, see below
+npm install -g --prefix ~/.local /tmp/kahme247-ompweb-*.tgz                # ~/.local/bin must be on PATH
+ompweb-systemd install                                                     # first install only: user unit + env file
+systemctl --user start ompweb && journalctl --user -u ompweb -f
 ```
 
 - npm's default global prefix may be `/usr` (root-only), so install with `--prefix ~/.local`.
@@ -17,13 +32,30 @@ journalctl --user -u ompweb -f
   (mode 600) with `PORT`, `OMP_WEB_HOSTNAME`, `OMP_WEB_NO_OPEN`, `OMP_WEB_OMP_BIN`.
   - `OMP_WEB_OMP_BIN` is the absolute omp path resolved at install time. Re-run the installer if omp moves.
 - Restart after editing the env file: `systemctl --user restart ompweb`.
+- **Updating the fork:** `git fetch upstream && git rebase upstream/main` on `rice`, run `npm test`, push, then repeat
+  the install steps. Drop patches once upstream merges them.
+
+### Restarts kill running sessions
+
+Every omp session ompweb started runs inside `ompweb.service` (`KillMode=control-group`), so stopping or restarting
+the service ends their in-flight turns, subagents and MCP servers. Transcripts are kept. With
+`{"autoResumeSessions": true}` in `~/.omp/agent/omp-web-settings.json` (Settings → System & Updates → **Resume
+running sessions after a restart**) ompweb restarts sessions that were mid-run and tells them to continue; the
+command running at that moment is still lost. Restart only when no long run is active.
+
+### Known gaps
+
+- The **Agents** settings page skips a symlinked `~/.omp/agent/agents` (`lib/omp/agents-service.ts`), so rice-omp's
+  agents are missing there; on `main` the "Skipped symbolic-link agents directory" warning is not shown in the API
+  response. omp itself loads them; sessions and subagents are unaffected.
 
 ### Server checklist
 
 - **Run without a login session:** `loginctl enable-linger "$USER"`.
 - **Expose beyond loopback:** set `OMP_WEB_PASSWORD` and `OMP_WEB_HOSTNAME` in `web-service.env`. `0.0.0.0` binds IPv4 only; `"::"` binds IPv4 and IPv6. Then restrict the port in the firewall to trusted sources. flareon allows `30177/tcp` only from the LAN (`192.168.10.0/24`, its IPv6 /64, `fc00::/7`, `fe80::/10` on the LAN NIC) and WireGuard (`10.100.0.0/24`, `fd08:4711::/64` on `wg0`). Plain HTTP sends the password and session cookie unencrypted, so outside a VPN put HTTPS in front.
-- **Pin the version:** set `OMP_WEB_DISABLE_AUTOUPDATE=1` so in-app updates don't drift from the pinned version.
-- **Before first use:** install rice-omp (`./install.sh`). ompweb only reads the agent dir and adds nothing of its own.
+- **Keep the fork:** set `OMP_WEB_DISABLE_AUTOUPDATE=1` so in-app updates don't replace it with the npm release.
+- **Before first use:** install rice-omp (`./install.sh`). ompweb's own files in the agent dir (`web-service.env`,
+  `omp-web-settings.json`, `projects.json`, `usage.db`) are per-machine and not part of rice-omp.
 
 ## How ompweb reads and writes omp settings
 

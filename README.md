@@ -55,15 +55,9 @@ Optional env (shell or `~/.omp/agent/.env`):
 
 ### Web UI (optional)
 
-[ompweb](https://github.com/kahme247/ompweb) (third-party, MIT) serves a browser UI over the same `~/.omp/agent` sessions and config. Node ≥ 22.19; installed under `~/.local` so no root is needed:
+[ompweb](https://github.com/kahme247/ompweb) (third-party, MIT) serves a browser UI over the same `~/.omp/agent` sessions and config. We run the fork [LLJY/ompweb](https://github.com/LLJY/ompweb) (branch `rice`: upstream `main` plus our patches), built from source and installed under `~/.local` so no root is needed. Node ≥ 22.19. Install, update and restart steps are in [docs/ompweb.md](docs/ompweb.md).
 
-```sh
-npm install -g --prefix ~/.local @kahme247/ompweb
-ompweb-systemd install          # user service on http://127.0.0.1:30177, starts at login
-journalctl --user -u ompweb -f  # logs; port/host/password live in ~/.omp/agent/web-service.env
-```
-
-It binds to loopback; set `OMP_WEB_PASSWORD` before exposing it beyond localhost. ompweb shows its own fallbacks for settings absent from `config.yml` and only knows the legacy compaction key: see [docs/ompweb.md](docs/ompweb.md) for what rice-omp pins and the server checklist.
+It binds to loopback; set `OMP_WEB_PASSWORD` before exposing it beyond localhost. Restarting it kills the omp sessions it runs. ompweb shows its own fallbacks for settings absent from `config.yml` and only knows the legacy compaction key: see [docs/ompweb.md](docs/ompweb.md) for what rice-omp pins, the restart caveat and the server checklist.
 
 ## Contents
 
