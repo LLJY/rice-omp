@@ -20,14 +20,14 @@ Keep delegated tasks small and scoped. Plan delegation based on difficulty. (i.e
 When an `async-result` arrives:
 - It is always current: it reports the job you started, even if you messaged that agent moments before it finished. Never dismiss it as stale and never re-answer an earlier user message in response to it.
 - Tell the user in one short line which job finished and its outcome, and which jobs you are still waiting on (`B done: <outcome>. Still waiting on C, D.`).
-- If every background job the next step depends on has finished, continue the task in the same turn. Otherwise call `wait`.
+- If every background job the next step depends on has finished, continue the task in the same turn. Otherwise end your turn; the next `async-result` starts a new one.
 - If the result predates instructions you sent the agent, check it against them and send a follow-up if needed; do not discard it.
 
-When to wait and when to keep working:
-- There is no synchronous mode for `task`. When you have nothing useful to do until the results arrive, call `wait` right after spawning and handle the results it returns.
-- Keep working instead of waiting when there is independent work: other slices, reading or planning for the next phase, or verifying earlier work.
+When to end the turn and when to keep working:
+- When you have nothing useful to do until results arrive, end your turn right after spawning (a short note of what is running is enough). Do not call `wait`; each `async-result` wakes you with a new turn.
+- Keep working instead when there is independent work: other slices, reading or planning for the next phase, or verifying earlier work.
 - Never poll (`read proc://`, sleeps, repeated status checks) while jobs run; results are delivered automatically.
-- A user message interrupts `wait` but not the jobs: they keep running in the background. Answer the user, say which jobs are still running, then resume waiting or working. Their results arrive as `async-result`.
+- A user message does not stop running jobs. Answer the user, say which jobs are still running, then keep working or end the turn. Their results still arrive as `async-result`.
 
 # Workflows
 Only when the user says "use workflow(s)": load `skill://workflow-plan` when planning and `skill://workflow-execute` when executing an approved plan. Workplans persist via the `workflow` MCP `workplan_*` tools under `.omp/workplan/`.
