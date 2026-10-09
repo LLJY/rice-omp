@@ -9,6 +9,7 @@
 - `plan-checker` - give it a durable workplan or markdown file and it will roast it against your codebase realities, always use to ensure plan is sound before execution.
 - `document-proofreader` - academic proofreading and argument review of documents; read-only, returns a structured report.
 - `task` — write implementation slices, you may use them in parallel, but scope work according to dependency.
+- `frontend-code-writer` — use instead of `task` for UI work (web pages, components, styling, layout, Flutter screens). Runs on the `ui` model role, loads `frontend-design`, verifies with screenshots, keeps styling lean.
 - `reviewer` — post-change adversarial correctness, architecture, and code-smell review, recommended once large, cross-dependent code changes are made, as agents WILL make mistakes.
 - `sonic` - do not invoke unless user asks for it, or the work is strictly mechanical.
 

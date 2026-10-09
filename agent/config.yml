@@ -25,7 +25,8 @@ modelRoles:
   advisor: cpa/gpt-6.1-sol:xhigh
   judge: cpa/gpt-6.1-sol:xhigh
   task: cpa/claude-sonnet-5-5:high
-  default: cpa/claude-opus-5-5:high
+  default: cpa/claude-opus-5-5:xhigh
+  ui: cpa/claude-opus-5-5:xhigh
   review: cpa/gpt-6.1-sol:xhigh
   plan-check: cpa/gpt-6.1-sol:xhigh
   research: cpa/gpt-6.1-sol:xhigh
@@ -35,10 +36,11 @@ modelPresets:
   Default:
     modelRoles:
       smol: cpa/gpt-6-luna:max
-      default: cpa/claude-opus-5-5:high
+      default: cpa/claude-opus-5-5:xhigh
       advisor: cpa/gpt-6.1-sol:xhigh
       judge: cpa/gpt-6.1-sol:xhigh
       task: cpa/claude-sonnet-5-5:high
+      ui: cpa/claude-opus-5-5:xhigh
       review: cpa/gpt-6.1-sol:xhigh
       plan-check: cpa/gpt-6.1-sol:xhigh
       research: cpa/gpt-6.1-sol:xhigh
