@@ -15,6 +15,11 @@ autolearn:
 retry:
   maxRetries: 10
   modelFallback: true
+  fallbackChains:
+    task:
+      - cpa/gpt-6.1-sol:xhigh
+    ui:
+      - cpa/gpt-6.1-sol:xhigh
 generate_image:
   enabled: true
 display:
