@@ -71,7 +71,7 @@ It binds to loopback; set `OMP_WEB_PASSWORD` before exposing it beyond localhost
 | `agent/extensions/workflow-compaction.ts` | Keeps workflow-skill state across compaction (port of [LLJY/opencode 6f2df07](https://github.com/LLJY/opencode/commit/6f2df07816eb98e0034c0b65d184183ca4a690cd)): handoff documents and soft summaries get a `## Workflow Status` section (mode, workplan id/path, current phase/step, whether plan-checker ran, which `skill://workflow-*` to re-read) only while a workplan is actively being planned or executed. Soft gets it through the `session.compacting` hook, handoff through the `context` hook on omp's handoff prompt; `remote` summaries are server-side and unaffected |
 | `agent/mcp.json` | `workflow`, `researcher-mcp`, `hound`, `context7`, `deepwiki` |
 | `agent/agents/` | `plan-checker`, `researcher`, `document-proofreader` (verbatim rice-opencode prompts, omp frontmatter); `reviewer` (omp's bundled reviewer + architecture/code-smell pillars from `code-checker`); `frontend-code-writer` (UI work on the `ui` role: autoloads `frontend-design`, screenshots at phone/tablet/desktop widths, follows brand guides, platform CSS / Material 3 / Cupertino before UI libraries, tree-shaken imports) |
-| `agent/skills/` | `workflow-plan`, `workflow-execute`, `git-commit`, `frontend-design` |
+| `agent/skills/` | `workflow-plan`, `workflow-execute`, `git-commit`, `frontend-design`; `ponytail`, `ponytail-review`, `ponytail-audit`, `ponytail-debt` vendored from [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) 5.2.0 (`2961b52`), opt-in via `/skill:<name>` or when the model picks them. Only the skills: its always-on extension, `ponytail-help` and `ponytail-gain` are left out, and the core skill's level-switch line is adapted to omp. Update by copying the four `SKILL.md` files from upstream again |
 | `agent/mcp/workflow/` | Workplan MCP (8 `workplan_*` tools), stored per workspace in `.omp/workplan/` |
 | `agent/mcp/researcher-mcp/` | Vendored Go source of [researcher-mcp](https://github.com/hoshinoht/researcher-mcp) + build-on-launch `run.sh` |
 | `agent/mcp/hound/run.sh` | Hound (`uvx hound-mcp[all]==12.4.1`) launcher; installs patchright Chromium for that environment if missing |
@@ -103,4 +103,4 @@ cd tools/opencode-import && bun test
 
 ## License
 
-GPL-2.0 (`LICENSE.md`). Vendored `agent/mcp/researcher-mcp/src` remains MIT (its own `LICENSE`).
+GPL-2.0 (`LICENSE.md`). Vendored `agent/mcp/researcher-mcp/src` remains MIT (its own `LICENSE`); vendored `agent/skills/ponytail*` are MIT (`agent/skills/ponytail/LICENSE`).
