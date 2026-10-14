@@ -16,10 +16,14 @@ retry:
   maxRetries: 10
   modelFallback: true
   fallbackChains:
+    default: []
     task:
       - cpa/gpt-6.1-sol:xhigh
     ui:
       - cpa/gpt-6.1-sol:xhigh
+    github-copilot/claude-sonnet-5.5:
+      - github-copilot/gpt-6.1-sol:xhigh
+    github-copilot/*: []
 generate_image:
   enabled: true
 display:
@@ -38,7 +42,7 @@ modelRoles:
   proofread: cpa/gpt-6.1-sol:xhigh
   web: web/exa
 modelPresets:
-  Default:
+  heavy:
     modelRoles:
       smol: cpa/gpt-6-luna:max
       default: cpa/claude-opus-5-5:xhigh
@@ -50,6 +54,20 @@ modelPresets:
       plan-check: cpa/gpt-6.1-sol:xhigh
       research: cpa/gpt-6.1-sol:xhigh
       proofread: cpa/gpt-6.1-sol:xhigh
+      web: web/exa
+    defaultThinkingLevel: high
+  work:
+    modelRoles:
+      smol: github-copilot/gpt-6-luna:max
+      default: github-copilot/claude-opus-5.5:xhigh
+      advisor: github-copilot/gpt-6.1-sol:xhigh
+      judge: github-copilot/gpt-6.1-sol:xhigh
+      task: github-copilot/gpt-6-luna:max
+      ui: github-copilot/claude-sonnet-5.5:high
+      review: github-copilot/gpt-6.1-sol:xhigh
+      plan-check: github-copilot/gpt-6.1-sol:xhigh
+      research: github-copilot/gpt-6-luna:max
+      proofread: github-copilot/gpt-6.1-sol:xhigh
       web: web/exa
     defaultThinkingLevel: high
 dev:
