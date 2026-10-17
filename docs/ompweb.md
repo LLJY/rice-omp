@@ -10,20 +10,26 @@ branch `rice`: upstream `main` plus our patches. Verified against omp 18.8.1.
   run (UI: "Generation stopped by user"). omp answers in milliseconds, but ompweb parses session files synchronously:
   a phone tab waking on a 400 MB session blocked the server for ~5 s on flareon. The fork waits 60 s
   (`OMP_WEB_GET_STATE_TIMEOUT_MS`) and never resets a running session that is still streaming.
-- **Upstream `main`, not 0.5.1**, for the opt-in auto-resume after a restart and the session-ownership fix
-  (kahme247/ompweb#202).
+- **Tracks upstream `main`** (currently 0.5.2 + our patch): opt-in auto-resume after a restart, the session-ownership fix
+  (kahme247/ompweb#202) and `/btw` are not in the 0.5.1 npm release.
 
 ## Install (no root)
 
 ```sh
 git clone -b rice git@github.com:LLJY/ompweb.git ~/Projects/ompweb && cd ~/Projects/ompweb
 git remote add upstream https://github.com/kahme247/ompweb.git
-npm ci && npm pkg set version="0.5.1-rice.$(git rev-parse --short HEAD)"   # version label shown in the UI
-npm pack --pack-destination /tmp && git checkout package.json              # prepack runs the build
+npm ci && npm pkg set version="$(git show upstream/main:package.json | jq -r .version)-rice.$(git rev-parse --short HEAD)"
+mkdir -p ~/.cache/ompweb-pack && npm pack --pack-destination ~/.cache/ompweb-pack && git checkout package.json  # prepack builds
 systemctl --user stop ompweb                                               # kills its omp sessions, see below
-npm install -g --prefix ~/.local /tmp/kahme247-ompweb-*.tgz                # ~/.local/bin must be on PATH
+npm install -g --prefix ~/.local ~/.cache/ompweb-pack/kahme247-ompweb-*.tgz  # ~/.local/bin must be on PATH
 ompweb-systemd install                                                     # first install only: user unit + env file
 systemctl --user start ompweb && journalctl --user -u ompweb -f
+```
+
+- Requires **Node.js ≥ 24** (0.5.2+ refuses older). On flareon the unit's `PATH` points at `~/.local/opt/node-v24…`.
+- Don't run the stop/install/start from an omp session that ompweb itself hosts: stopping ompweb kills that session
+  mid-command. Run it from a terminal, or wrap it: `systemd-run --user --collect bash -lc '<stop; install; start>'`.
+- `/tmp` gets cleared on reboot; pack into `~/.cache/ompweb-pack` so the tarball survives.
 ```
 
 - npm's default global prefix may be `/usr` (root-only), so install with `--prefix ~/.local`.
@@ -32,8 +38,10 @@ systemctl --user start ompweb && journalctl --user -u ompweb -f
   (mode 600) with `PORT`, `OMP_WEB_HOSTNAME`, `OMP_WEB_NO_OPEN`, `OMP_WEB_OMP_BIN`.
   - `OMP_WEB_OMP_BIN` is the absolute omp path resolved at install time. Re-run the installer if omp moves.
 - Restart after editing the env file: `systemctl --user restart ompweb`.
-- **Updating the fork:** `git fetch upstream && git rebase upstream/main` on `rice`, run `npm test`, push, then repeat
-  the install steps. Drop patches once upstream merges them.
+- **Updating the fork:** on `rice`, `git fetch upstream && git rebase upstream/main` (conflicts are usually only
+  `CHANGELOG.md` and neighbouring additions in `lib/rpc-manager.ts`; keep both sides), `rm -rf .next && npm run
+  typecheck && npm test` (two `buildUnit` tests fail on unmodified upstream too: PATH layout), `git push
+  --force-with-lease origin rice`, then repeat the install steps. Drop the patch once upstream has an equivalent fix.
 
 ### Restarts kill running sessions
 
@@ -52,7 +60,7 @@ command running at that moment is still lost. Restart only when no long run is a
 ### Server checklist
 
 - **Run without a login session:** `loginctl enable-linger "$USER"`.
-- **Expose beyond loopback:** set `OMP_WEB_PASSWORD` and `OMP_WEB_HOSTNAME` in `web-service.env`. `0.0.0.0` binds IPv4 only; `"::"` binds IPv4 and IPv6. Then restrict the port in the firewall to trusted sources. flareon allows `30177/tcp` only from the LAN (`192.168.10.0/24`, its IPv6 /64, `fc00::/7`, `fe80::/10` on the LAN NIC) and WireGuard (`10.100.0.0/24`, `fd08:4711::/64` on `wg0`). Plain HTTP sends the password and session cookie unencrypted, so outside a VPN put HTTPS in front.
+- **Expose beyond loopback:** set `OMP_WEB_PASSWORD_HASH` (from `ompweb hash-password`) and `OMP_WEB_HOSTNAME` in `web-service.env`. Since 0.5.2 a plaintext `OMP_WEB_PASSWORD` is only tolerated with a warning (hashed afresh on each start, which signs every browser out) and must not be set together with the hash: every omp session inherits ompweb's environment, so a plaintext password could leak into sessions. `0.0.0.0` binds IPv4 only; `"::"` binds IPv4 and IPv6. Then restrict the port in the firewall to trusted sources. flareon allows `30177/tcp` only from the LAN (`192.168.10.0/24`, its IPv6 /64, `fc00::/7`, `fe80::/10` on the LAN NIC) and WireGuard (`10.100.0.0/24`, `fd08:4711::/64` on `wg0`). Plain HTTP sends the password and session cookie unencrypted, so outside a VPN put HTTPS in front.
 - **Keep the fork:** set `OMP_WEB_DISABLE_AUTOUPDATE=1` so in-app updates don't replace it with the npm release.
 - **Before first use:** install rice-omp (`./install.sh`). ompweb's own files in the agent dir (`web-service.env`,
   `omp-web-settings.json`, `projects.json`, `usage.db`) are per-machine and not part of rice-omp.
